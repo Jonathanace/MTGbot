@@ -1,7 +1,7 @@
 import threading
 
-def test():
-    threading.Timer(10.0, test).start()
-    print("test called")
+def hello_world():
+    threading.Timer(1.0, hello_world).start() # called every second
+    print("Hello, World!")
 
-test()
+hello_world()
