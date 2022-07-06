@@ -8,30 +8,36 @@ from requests_html import HTMLSession
 import config
 
 #region --- VARIABLES ---
-page_num = 0
+page_num = 0 # init to 0
 interval = 10.05
 init_time = next_execution = time.time()
 session = HTMLSession()
 colors = ['White', 'Black', 'Blue', 'Red', 'Green', 'Colorless']
 logs_ch = Webhook.from_url("https://discord.com/api/webhooks/991149025359306842/xB000hauyghwVhEnotsO_oK-o7OVcFc4GMOe6EH5Rkhf4EJ9W4ZmCSKxn0pcHNYpniX4", adapter=RequestsWebhookAdapter())
 cards_ch = Webhook.from_url("https://discord.com/api/webhooks/869137259981586433/P7m6kLCzReCr4RErUr1D-Ae-sqx6kta0igrnn5BdhCkzPfLWHiSRLyghrnc86-XLId_G", adapter=RequestsWebhookAdapter())
+empty_page = False
 #endregion
 
 #region --- FUNCTIONS ---
 def scrape_page():
     global page_num
     global next_execution
+    global empty_page
+    global colors
     
-    url = f'https://www.tcgplayer.com/search/magic/product?RequiredFormat=All%20Formats&Price_Condition=Greater%20Than&Price=2&advancedSearch=true&productLineName=magic&view=list&Printing=Normal&page={page_num}&Condition=Near%20Mint%7CLightly%20Played&Language=English&ProductTypeName=Cards&RarityName=Mythic%7CRare&Color={colors[0]}' # update URL
-    webpage = session.get(url); next_execution =  time.time() + interval # request webpage from url
-    print(f'Requesting page {page_num} at ~{round(time.time() - init_time, 2)}s, response: {webpage.status_code}. URL: {url}')
-    if webpage.status_code == 200: # increment page number if webpage success
+    if not empty_page: # increment page number if webpage success
         page_num += 1
     else: # change color if webpage error
-        page_num = 0
+        page_num = 1
         colors.append(colors[0])
         colors.pop(0)
         logs_ch.send(f'Now scraping {colors[0]}')
+        print(f'now scraping {colors[0]}')
+        empty_page = False
+
+    url = f'https://www.tcgplayer.com/search/magic/product?RequiredFormat=All%20Formats&Price_Condition=Greater%20Than&Price=2&advancedSearch=true&productLineName=magic&view=list&Printing=Normal&page={page_num}&Condition=Near%20Mint%7CLightly%20Played&Language=English&ProductTypeName=Cards&RarityName=Mythic%7CRare&Color={colors[0]}' # update URL
+    webpage = session.get(url); next_execution =  time.time() + interval # request webpage from url
+    print(f'Requesting page {page_num} at ~{round(time.time() - init_time, 2)}s, response: {webpage.status_code}. URL: {url}')
 
     threading.Timer(max(0, next_execution - time.time()), scrape_page).start() # queue next scrape call
 
@@ -39,6 +45,9 @@ def scrape_page():
     soup = BeautifulSoup(webpage.html.raw_html, 'html.parser') # get soup
 
     cards = soup.findAll('div', class_='search-result')
+    empty_page = False if cards else True
+    print(f'Empty Page: {empty_page}')
+    
     for data in cards: # call price check for each card
         price_check(data)
 
@@ -135,5 +144,3 @@ except:
 # however, the shipping in reality costs fucking $2.49 lol
 
 #endregion
-
-
