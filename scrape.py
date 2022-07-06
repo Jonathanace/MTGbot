@@ -102,7 +102,7 @@ def price_check(data):
     print(f'margin: {margin}%')
     print()
 
-    if margin > (config.target_margin):
+    if margin > (config.target_margin) and profit > config.min_profit:
         cards_ch.send(f'``` {name.text} | Cost: ${cost} | Profit: ${profit} | Margin: {margin}% | differential: {differential} | Popularity Ranking: {page_num - 1} ``` || https://www.tcgplayer.com{data.find(tabindex = "-1").get("href")} ||')
         pass
 
