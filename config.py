@@ -15,4 +15,4 @@ target_margin = 6 # percent
 sales_tax = 10.25 # percent
 blacklisted_sets = []
 blacklisted_cards = []
-
+min_profit = 2.00
