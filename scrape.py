@@ -103,7 +103,8 @@ def price_check(data):
     print()
 
     if margin > (config.target_margin) and profit > config.min_profit:
-        cards_ch.send(f'``` {name.text} | Cost: ${cost} | Profit: ${profit} | Margin: {margin}% | differential: {differential} | Popularity Ranking: {page_num - 1} ``` || https://www.tcgplayer.com{data.find(tabindex = "-1").get("href")} ||')
+        # cards_ch.send(f'``` {name.text} | Cost: ${cost} | Profit: ${profit} | Margin: {margin}% | differential: {differential} | Popularity Ranking: {page_num - 1} ``` || https://www.tcgplayer.com{data.find(tabindex = "-1").get("href")} ||')
+        cards_ch.send(f'``` Profit: ${profit} | Margin :{margin}% | Cost: ${cost} | {name.text} | Popularity: {page_num - 1} | Differential: {differential} ``` || https://www.tcgplayer.com{data.find(tabindex = "-1").get("href")} ||')
         pass
 
     #endregion
@@ -142,5 +143,7 @@ except:
 
 # "Free shipping on orders over $50" makes your shiping appear as $0 when sorting cards by price
 # however, the shipping in reality costs fucking $2.49 lol
+
+# put profit, margin, and cost before card name. 
 
 #endregion

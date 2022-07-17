@@ -11,7 +11,7 @@ bubble_mailer = 0.13 # flat
 shipping_label = 3.49 # flat
 
 # other
-target_margin = 6 # percent
+target_margin = 10 # percent
 sales_tax = 10.25 # percent
 blacklisted_sets = []
 blacklisted_cards = []
