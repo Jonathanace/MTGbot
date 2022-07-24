@@ -3,7 +3,7 @@ import time
 
 from bs4 import BeautifulSoup
 from discord import Webhook, RequestsWebhookAdapter
-from requests_html import HTMLSession
+from selenium import webdriver
 
 import config
 
@@ -11,7 +11,7 @@ import config
 page_num = 0 # init to 0
 interval = 10.05
 init_time = next_execution = time.time()
-session = HTMLSession()
+driver = webdriver.Firefox()
 colors = ['White', 'Black', 'Blue', 'Red', 'Green', 'Colorless']
 logs_ch = Webhook.from_url("https://discord.com/api/webhooks/991149025359306842/xB000hauyghwVhEnotsO_oK-o7OVcFc4GMOe6EH5Rkhf4EJ9W4ZmCSKxn0pcHNYpniX4", adapter=RequestsWebhookAdapter())
 cards_ch = Webhook.from_url("https://discord.com/api/webhooks/869137259981586433/P7m6kLCzReCr4RErUr1D-Ae-sqx6kta0igrnn5BdhCkzPfLWHiSRLyghrnc86-XLId_G", adapter=RequestsWebhookAdapter())
@@ -36,13 +36,14 @@ def scrape_page():
         empty_page = False
 
     url = f'https://www.tcgplayer.com/search/magic/product?RequiredFormat=All%20Formats&Price_Condition=Greater%20Than&Price=2&advancedSearch=true&productLineName=magic&view=list&Printing=Normal&page={page_num}&Condition=Near%20Mint%7CLightly%20Played&Language=English&ProductTypeName=Cards&RarityName=Mythic%7CRare&Color={colors[0]}' # update URL
-    webpage = session.get(url); next_execution =  time.time() + interval # request webpage from url
-    print(f'Requesting page {page_num} at ~{round(time.time() - init_time, 2)}s, response: {webpage.status_code}. URL: {url}')
+    driver.get(url); 
+    next_execution =  time.time() + interval # request webpage from url
+    print(f'Requesting page {page_num} at ~{round(time.time() - init_time, 2)}s. URL: {url}')
 
     threading.Timer(max(0, next_execution - time.time()), scrape_page).start() # queue next scrape call
 
-    webpage.html.render(sleep=3, timeout=15, retries=10) # render webpage
-    soup = BeautifulSoup(webpage.html.raw_html, 'html.parser') # get soup
+    html = driver.page_source # render webpage
+    soup = BeautifulSoup(html) # get soup
 
     cards = soup.findAll('div', class_='search-result')
     empty_page = False if cards else True
